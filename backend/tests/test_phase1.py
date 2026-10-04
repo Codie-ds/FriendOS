@@ -48,6 +48,8 @@ def client():
         importlib.reload(routes.ai_test)
         import routes.material
         importlib.reload(routes.material)
+        import routes.diagnostic
+        importlib.reload(routes.diagnostic)
         import main
         importlib.reload(main)
 

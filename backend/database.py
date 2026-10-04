@@ -42,3 +42,7 @@ def sessions_collection() -> Collection:
 
 def materials_collection() -> Collection:
     return get_collection("learning_materials")
+
+
+def diagnostic_sessions_collection() -> Collection:
+    return get_collection("diagnostic_sessions")

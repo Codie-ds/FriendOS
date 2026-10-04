@@ -50,6 +50,8 @@ def client():
         importlib.reload(routes.material)
         import routes.diagnostic
         importlib.reload(routes.diagnostic)
+        import routes.learning
+        importlib.reload(routes.learning)
         import main
         importlib.reload(main)
 

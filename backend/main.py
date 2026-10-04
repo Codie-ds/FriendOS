@@ -19,6 +19,7 @@ from routes.onboarding import router as onboarding_router
 from routes.ai_test import router as ai_test_router
 from routes.material import router as material_router
 from routes.diagnostic import router as diagnostic_router
+from routes.learning import router as learning_router
 
 
 @asynccontextmanager
@@ -55,3 +56,4 @@ app.include_router(onboarding_router)
 app.include_router(ai_test_router)
 app.include_router(material_router)
 app.include_router(diagnostic_router)
+app.include_router(learning_router)

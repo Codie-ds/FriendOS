@@ -46,3 +46,11 @@ def materials_collection() -> Collection:
 
 def diagnostic_sessions_collection() -> Collection:
     return get_collection("diagnostic_sessions")
+
+
+def learning_sessions_collection() -> Collection:
+    return get_collection("learning_sessions")
+
+
+def learning_events_collection() -> Collection:
+    return get_collection("learning_events")

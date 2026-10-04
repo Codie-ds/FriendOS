@@ -1,0 +1,16 @@
+warning: The `fitz` API is deprecated and will be removed in future. Use `import pymupdf` instead.
+INFO:     Started server process [14271]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+✅ Connected to MongoDB
+INFO:     127.0.0.1:54441 - "GET /api/health HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:54445 - "POST /api/onboard HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54446 - "POST /api/learning/session/start HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54447 - "POST /api/learning/event HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54448 - "POST /api/learning/event HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54449 - "POST /api/learning/event HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "POST /api/learning/event HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54451 - "POST /api/learning/event HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54452 - "POST /api/learning/session/6ac2d43f14c031a6e95d5d9e/complete HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54453 - "GET /api/learning/summary/6ac2d43f14c031a6e95d5d9d HTTP/1.1" 200 OK

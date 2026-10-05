@@ -18,6 +18,7 @@ def _mock_env(monkeypatch):
     monkeypatch.setenv("GEMMA_API_KEY", "test-key")
     monkeypatch.setenv("GEMMA_MODEL", "test-model")
     monkeypatch.setenv("MONGODB_URI", "mongodb://localhost:27017")
+    monkeypatch.setenv("ENABLE_AI_TEST", "1")
 
 
 @pytest.fixture()
@@ -64,7 +65,7 @@ def client():
 # ── Health ────────────────────────────────────────────────────────────
 
 def test_health(client):
-    resp = client.get("/health")
+    resp = client.get("/api/health")
     assert resp.status_code == 200
     body = resp.json()
     assert body["status"] == "ok"

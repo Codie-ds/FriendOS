@@ -79,7 +79,7 @@ export default function PracticeSessionPanel({ sessionId, busy, error, onFinish 
       <span className="session-reference">Session · {sessionId.slice(-8)}</span>
       
       {(error || fetchError) && (
-        <p className="form-error" role="alert">{error || fetchError}</p>
+        <p className="form-error" role="alert" aria-live="polite">{error || fetchError}</p>
       )}
 
       {loading ? (
@@ -87,23 +87,34 @@ export default function PracticeSessionPanel({ sessionId, busy, error, onFinish 
       ) : question ? (
         <div className="question-block" style={{ marginTop: "1rem" }}>
           <h3>{question.question}</h3>
-          <div className="options" style={{ display: "flex", flexDirection: "column", gap: "0.5rem", marginTop: "1rem" }}>
+          
+          <div className="answer-list" style={{ marginTop: "1.5rem" }}>
             {question.options.map((opt, i) => {
-              let btnClass = "button button-outline";
+              let btnClass = "answer-option";
+              let dynamicStyle: React.CSSProperties = {};
+              
               if (selectedAnswer === i) {
-                if (isCorrect === true) btnClass = "button button-success";
-                else if (isCorrect === false) btnClass = "button button-danger";
-                else btnClass = "button button-dark";
+                btnClass += " selected";
+                if (isCorrect === true) {
+                  dynamicStyle = { borderColor: "var(--sage)", background: "var(--paper)", color: "var(--ink)" };
+                } else if (isCorrect === false) {
+                  dynamicStyle = { borderColor: "var(--red)", background: "var(--paper)", color: "var(--ink)" };
+                }
               }
               
+              const isFaded = isCorrect === true && selectedAnswer !== i;
+
               return (
                 <button
                   key={i}
+                  type="button"
                   className={btnClass}
                   onClick={() => handleSubmit(i)}
                   disabled={submitting || isCorrect === true}
-                  style={{ textAlign: "left", opacity: isCorrect === true && selectedAnswer !== i ? 0.5 : 1 }}
+                  style={{ opacity: isFaded ? 0.5 : 1, ...dynamicStyle }}
+                  aria-pressed={selectedAnswer === i}
                 >
+                  <span>{String.fromCharCode(65 + i)}</span>
                   {opt}
                 </button>
               );
@@ -111,15 +122,18 @@ export default function PracticeSessionPanel({ sessionId, busy, error, onFinish 
           </div>
           
           {isCorrect !== null && (
-            <div style={{ marginTop: "1rem", padding: "1rem", borderRadius: "8px", background: isCorrect ? "#ecfdf5" : "#fef2f2", color: isCorrect ? "#065f46" : "#991b1b" }}>
-              <strong>{isCorrect ? "Correct!" : "Incorrect, try again."}</strong>
+            <div style={{ marginTop: "1.5rem" }} aria-live="polite">
+              <p style={{ color: isCorrect ? "var(--sage)" : "var(--red)", fontWeight: 500, margin: "0 0 1rem" }}>
+                {isCorrect ? "Correct!" : "Incorrect, try again."}
+              </p>
               {isCorrect && (
                 <button 
+                  type="button"
                   className="button button-dark" 
-                  style={{ marginTop: "1rem", width: "100%" }}
+                  style={{ width: "100%" }}
                   onClick={fetchNextQuestion}
                 >
-                  Next Question
+                  Next Question <span>→</span>
                 </button>
               )}
             </div>
@@ -130,6 +144,7 @@ export default function PracticeSessionPanel({ sessionId, busy, error, onFinish 
           <h3>All practice questions completed!</h3>
           <p>You have finished the available practice material for this topic.</p>
           <button 
+            type="button"
             className="button button-dark" 
             onClick={onFinish} 
             disabled={busy}
@@ -142,6 +157,7 @@ export default function PracticeSessionPanel({ sessionId, busy, error, onFinish 
 
       {question && (
         <button 
+          type="button"
           className="button button-outline" 
           onClick={onFinish} 
           disabled={busy || submitting}

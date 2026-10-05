@@ -36,10 +36,10 @@ def upload_material(file: UploadFile = File(...)):
     # ── 2. Analyse with Gemma ─────────────────────────────────────────
     try:
         analysis = analyze_material(extraction.text)
-    except MaterialAnalysisError as exc:
+    except MaterialAnalysisError:
         raise HTTPException(
             status_code=502,
-            detail=f"AI analysis failed: {exc}",
+            detail="AI analysis failed. Please try again later.",
         )
 
     # ── 3. Store in MongoDB ───────────────────────────────────────────
@@ -54,8 +54,8 @@ def upload_material(file: UploadFile = File(...)):
 
     try:
         result = materials_collection().insert_one(material.model_dump())
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"Database error: {exc}")
+    except Exception:
+        raise HTTPException(status_code=500, detail="A database error occurred. Please try again later.")
 
     # ── 4. Return response ────────────────────────────────────────────
     return MaterialUploadResponse(

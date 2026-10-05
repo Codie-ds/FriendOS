@@ -57,8 +57,8 @@ def start_session(data: StartLearningSessionRequest):
 
     try:
         result = learning_sessions_collection().insert_one(session.model_dump())
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"Database error: {exc}")
+    except Exception:
+        raise HTTPException(status_code=500, detail="A database error occurred. Please try again later.")
 
     return LearningSessionResponse(success=True, session_id=str(result.inserted_id))
 
@@ -98,8 +98,8 @@ def record_event(data: RecordEventRequest):
 
     try:
         result = learning_events_collection().insert_one(event.model_dump())
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"Database error: {exc}")
+    except Exception:
+        raise HTTPException(status_code=500, detail="A database error occurred. Please try again later.")
 
     return RecordEventResponse(success=True, event_id=str(result.inserted_id))
 
@@ -416,8 +416,8 @@ def submit_practice_answer(session_id: str, data: PracticeAnswerRequest):
 
     try:
         result = learning_events_collection().insert_one(event.model_dump())
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"Database error: {exc}")
+    except Exception:
+        raise HTTPException(status_code=500, detail="A database error occurred. Please try again later.")
 
     return PracticeAnswerResponse(
         success=True,

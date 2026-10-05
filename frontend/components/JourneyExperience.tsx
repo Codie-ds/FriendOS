@@ -50,7 +50,7 @@ function SectionHeading({ number, eyebrow, title, detail }: { number: string; ey
 }
 
 function ErrorNote({ children }: { children: string }) {
-  return <p className="form-error" role="alert">{children}</p>;
+  return <p className="form-error" role="alert" aria-live="polite">{children}</p>;
 }
 
 export default function JourneyExperience() {
@@ -251,9 +251,9 @@ export default function JourneyExperience() {
                 <div className="question-meta"><span>{activeQuestion.topic}</span><span>{questionIndex + 1} / {questions.length}</span></div>
                 <div className="progress-track"><div className="progress-fill" style={{ width: `${((questionIndex + 1) / questions.length) * 100}%` }} /></div>
                 <h3>{activeQuestion.question}</h3>
-                <div className="answer-list">{activeQuestion.options.map((option, index) => <button className={`answer-option ${answers[activeQuestion.question_id] === index ? "selected" : ""}`} key={`${activeQuestion.question_id}-${index}`} onClick={() => setAnswers((previous) => ({ ...previous, [activeQuestion.question_id]: index }))}><span>{String.fromCharCode(65 + index)}</span>{option}</button>)}</div>
+                <div className="answer-list">{activeQuestion.options.map((option, index) => <button type="button" className={`answer-option ${answers[activeQuestion.question_id] === index ? "selected" : ""}`} aria-pressed={answers[activeQuestion.question_id] === index} key={`${activeQuestion.question_id}-${index}`} onClick={() => setAnswers((previous) => ({ ...previous, [activeQuestion.question_id]: index }))}><span>{String.fromCharCode(65 + index)}</span>{option}</button>)}</div>
                 {error && <ErrorNote>{error}</ErrorNote>}
-                <div className="question-actions"><button className="text-button" onClick={() => { setAnswers((previous) => ({ ...previous, [activeQuestion.question_id]: null })); if (questionIndex < questions.length - 1) setQuestionIndex(questionIndex + 1); else void submitAssessment(); }}>Skip this question</button><button className="button button-dark" disabled={busy} onClick={() => { if (questionIndex < questions.length - 1) setQuestionIndex(questionIndex + 1); else void submitAssessment(); }}>{busy ? "Submitting…" : questionIndex === questions.length - 1 ? "Submit diagnostic" : "Next question"}<span>→</span></button></div>
+                <div className="question-actions"><button type="button" className="text-button" onClick={() => { setAnswers((previous) => ({ ...previous, [activeQuestion.question_id]: null })); if (questionIndex < questions.length - 1) setQuestionIndex(questionIndex + 1); else void submitAssessment(); }}>Skip this question</button><button type="button" className="button button-dark" disabled={busy} onClick={() => { if (questionIndex < questions.length - 1) setQuestionIndex(questionIndex + 1); else void submitAssessment(); }}>{busy ? "Submitting…" : questionIndex === questions.length - 1 ? "Submit diagnostic" : "Next question"}<span>→</span></button></div>
               </div> : <CompletedLine title="Diagnostic complete" detail="Results below come directly from your submitted answers." />}
             </section>}
 

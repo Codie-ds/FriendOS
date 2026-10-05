@@ -63,8 +63,8 @@ def start_diagnostic(data: StartDiagnosticRequest):
     
     try:
         result = diagnostic_sessions_collection().insert_one(session.model_dump())
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"Database error: {exc}")
+    except Exception:
+        raise HTTPException(status_code=500, detail="A database error occurred. Please try again later.")
         
     session_id = str(result.inserted_id)
 

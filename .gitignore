@@ -8,3 +8,11 @@ __pycache__/
 node_modules/
 .next/
 .DS_Store
+
+# Logs
+*.log
+
+# Ad-hoc test/dev files
+e2e_test.py
+*.patch
+backend/test_python.pdf

@@ -36,8 +36,8 @@ def onboard_learner(data: LearnerCreate):
 
     try:
         result = learners_collection().insert_one(learner.model_dump())
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"Database error: {exc}")
+    except Exception:
+        raise HTTPException(status_code=500, detail="A database error occurred. Please try again later.")
 
     return LearnerResponse(
         success=True,

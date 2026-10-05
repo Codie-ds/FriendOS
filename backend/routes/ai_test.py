@@ -26,7 +26,7 @@ def ai_test(data: AITestRequest):
     """Send a prompt to Gemma and return the response. Dev/testing only."""
     try:
         text = _ai.generate_response(data.prompt)
-    except Exception as exc:
-        raise HTTPException(status_code=502, detail=f"AI service error: {exc}")
+    except Exception:
+        raise HTTPException(status_code=502, detail="AI service error. Please try again later.")
 
     return AITestResponse(success=True, response=text)

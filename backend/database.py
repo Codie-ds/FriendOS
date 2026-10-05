@@ -54,3 +54,7 @@ def learning_sessions_collection() -> Collection:
 
 def learning_events_collection() -> Collection:
     return get_collection("learning_events")
+
+
+def adaptive_recommendations_collection() -> Collection:
+    return get_collection("adaptive_recommendations")

@@ -52,6 +52,8 @@ def client():
         importlib.reload(routes.diagnostic)
         import routes.learning
         importlib.reload(routes.learning)
+        import routes.adaptive
+        importlib.reload(routes.adaptive)
         import main
         importlib.reload(main)
 

@@ -24,6 +24,9 @@ from models.learning import (
     CompleteSessionResponse,
     LearnerBehaviorSummary,
     TopicSummary,
+    PracticeQuestion,
+    PracticeAnswerRequest,
+    PracticeAnswerResponse,
 )
 
 router = APIRouter(prefix="/api/learning")
@@ -288,4 +291,136 @@ def get_learner_summary(learner_id: str):
         hints_requested=total_hints,
         questions_skipped=len(skipped_questions),
         topic_summary=topic_summary_dict
+    )
+
+
+# ── 7. Practice Flow ───────────────────────────────────────────────────
+
+@router.get("/session/{session_id}/question", response_model=PracticeQuestion)
+def get_practice_question(session_id: str):
+    """Retrieve the next practice question without exposing the correct answer."""
+    try:
+        session_oid = ObjectId(session_id)
+    except InvalidId:
+        raise HTTPException(status_code=400, detail="Invalid session_id.")
+
+    session = learning_sessions_collection().find_one({"_id": session_oid})
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found.")
+        
+    if session.get("status") == "completed":
+        raise HTTPException(status_code=400, detail="Session already completed.")
+
+    try:
+        material_oid = ObjectId(session["material_id"])
+    except InvalidId:
+        raise HTTPException(status_code=404, detail="Material ID invalid.")
+
+    material = materials_collection().find_one({"_id": material_oid})
+    if not material:
+        raise HTTPException(status_code=404, detail="Material not found.")
+
+    # Find questions matching the session's topic
+    questions = material.get("diagnostic_questions", [])
+    topic_questions = [
+        (str(idx), q) for idx, q in enumerate(questions) if q.get("topic") == session["topic"]
+    ]
+
+    if not topic_questions:
+        raise HTTPException(status_code=404, detail="No questions found for this topic.")
+
+    # We need a question that hasn't been answered correctly yet (or just hasn't been answered).
+    events = list(learning_events_collection().find({"session_id": session_id, "event_type": "answer"}))
+    answered_qids = {e["question_id"] for e in events}
+
+    next_q = None
+    for qid, q in topic_questions:
+        if qid not in answered_qids:
+            next_q = (qid, q)
+            break
+
+    if not next_q:
+        raise HTTPException(status_code=404, detail="No more practice questions available.")
+
+    qid, q_doc = next_q
+
+    return PracticeQuestion(
+        question_id=qid,
+        question=q_doc["question"],
+        options=q_doc["options"],
+        topic=q_doc["topic"],
+        difficulty=q_doc.get("difficulty", "beginner")
+    )
+
+
+@router.post("/session/{session_id}/answer", response_model=PracticeAnswerResponse)
+def submit_practice_answer(session_id: str, data: PracticeAnswerRequest):
+    """Evaluate a selected answer server-side and record a verified event."""
+    try:
+        session_oid = ObjectId(session_id)
+    except InvalidId:
+        raise HTTPException(status_code=400, detail="Invalid session_id.")
+
+    session = learning_sessions_collection().find_one({"_id": session_oid})
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found.")
+        
+    if session.get("status") == "completed":
+        raise HTTPException(status_code=400, detail="Session already completed.")
+
+    try:
+        material_oid = ObjectId(session["material_id"])
+    except InvalidId:
+        raise HTTPException(status_code=404, detail="Material ID invalid.")
+
+    material = materials_collection().find_one({"_id": material_oid})
+    if not material:
+        raise HTTPException(status_code=404, detail="Material not found.")
+
+    questions = material.get("diagnostic_questions", [])
+    
+    # Verify question_id is valid
+    try:
+        q_idx = int(data.question_id)
+        if q_idx < 0 or q_idx >= len(questions):
+            raise ValueError()
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid question_id.")
+        
+    q_doc = questions[q_idx]
+    
+    if q_doc.get("topic") != session["topic"]:
+        raise HTTPException(status_code=400, detail="Question topic does not match session topic.")
+        
+    correct_idx = q_doc["correct_answer"]
+    
+    if data.selected_answer < 0 or data.selected_answer > 3:
+         raise HTTPException(status_code=400, detail="Invalid selected_answer.")
+
+    is_correct = (data.selected_answer == correct_idx)
+
+    # Record event
+    event = LearningEventInDB(
+        learner_id=session["learner_id"],
+        session_id=session_id,
+        material_id=session["material_id"],
+        topic=session["topic"],
+        question_id=data.question_id,
+        event_type="answer",
+        is_correct=is_correct,
+        attempt_number=data.attempt_number,
+        time_taken_seconds=data.time_taken_seconds,
+        hint_requested=False,
+        skipped=False,
+    )
+
+    try:
+        result = learning_events_collection().insert_one(event.model_dump())
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Database error: {exc}")
+
+    return PracticeAnswerResponse(
+        success=True,
+        is_correct=is_correct,
+        event_id=str(result.inserted_id)
     )

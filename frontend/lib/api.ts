@@ -11,6 +11,9 @@ import type {
   LearnerBehaviorSummary,
   RecommendResponse,
   HistoryResponse,
+  PracticeQuestion,
+  PracticeAnswerRequest,
+  PracticeAnswerResponse,
 } from "./types";
 
 const api = axios.create({
@@ -121,6 +124,28 @@ export async function getRecommendation(payload: {
 export async function getHistory(learnerId: string): Promise<HistoryResponse> {
   const { data } = await api.get<HistoryResponse>(
     `/api/adaptive/history/${learnerId}`
+  );
+  return data;
+}
+
+// ── Practice Flow ─────────────────────────────────────────────────────
+
+export async function getPracticeQuestion(
+  sessionId: string
+): Promise<PracticeQuestion> {
+  const { data } = await api.get<PracticeQuestion>(
+    `/api/learning/session/${sessionId}/question`
+  );
+  return data;
+}
+
+export async function submitPracticeAnswer(
+  sessionId: string,
+  payload: PracticeAnswerRequest
+): Promise<PracticeAnswerResponse> {
+  const { data } = await api.post<PracticeAnswerResponse>(
+    `/api/learning/session/${sessionId}/answer`,
+    payload
   );
   return data;
 }

@@ -156,5 +156,25 @@ export interface AppState {
   diagnosticSessionId: string | null;
   skillProfile: Record<string, number>;
   learningSessionId: string | null;
-  currentRecommendation: AdaptiveRecommendation | null;
+}
+
+export interface PracticeQuestion {
+  question_id: string;
+  question: string;
+  options: [string, string, string, string];
+  topic: string;
+  difficulty: string;
+}
+
+export interface PracticeAnswerRequest {
+  question_id: string;
+  selected_answer: number;
+  attempt_number: number;
+  time_taken_seconds?: number;
+}
+
+export interface PracticeAnswerResponse {
+  success: boolean;
+  is_correct: boolean;
+  event_id: string;
 }

@@ -100,3 +100,33 @@ class LearnerBehaviorSummary(BaseModel):
     hints_requested: int
     questions_skipped: int
     topic_summary: dict[str, TopicSummary]
+
+
+# ── Models for Practice Flow ──────────────────────────────────────────
+
+class PracticeQuestion(BaseModel):
+    question_id: str
+    question: str
+    options: list[str]
+    topic: str
+    difficulty: str
+
+
+class PracticeAnswerRequest(BaseModel):
+    question_id: str
+    selected_answer: int
+    attempt_number: int = Field(default=1, ge=1)
+    time_taken_seconds: Optional[float] = Field(default=None, ge=0.0)
+
+    @field_validator("time_taken_seconds")
+    @classmethod
+    def validate_time(cls, v: Optional[float]) -> Optional[float]:
+        if v is not None and (v != v):
+            raise ValueError("time_taken_seconds cannot be NaN")
+        return v
+
+
+class PracticeAnswerResponse(BaseModel):
+    success: bool
+    is_correct: bool
+    event_id: str
